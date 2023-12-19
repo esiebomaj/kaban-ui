@@ -2,7 +2,7 @@ export interface TaskType {
   id: string;
   title: string;
   label: string;
-  created_at: string;
+  createdAt: string;
 }
 
 export interface TasksByLabel {

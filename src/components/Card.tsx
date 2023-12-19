@@ -4,14 +4,15 @@ import Moment from "react-moment";
 import { Edit2, Trash2 } from "react-feather";
 import AddTask from "./AddTask";
 import Modal from "./Modal";
+import { TaskType } from "../@types";
 
 interface CardProps {
-  task: any;
-  onEdit: (task: any, title: string, label: string) => void;
-  onDelete: (id: string, label: string) => void;
+  task: TaskType;
+  handleEdit: (task: any, title: string, label: string) => void;
+  handleDelete: (id: string, label: string) => void;
 }
 
-const Card: React.FC<CardProps> = ({ task, onEdit, onDelete }) => {
+const Card: React.FC<CardProps> = ({ task, handleDelete, handleEdit }) => {
   const [showEdit, setShowEdit] = useState(false);
 
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -22,9 +23,15 @@ const Card: React.FC<CardProps> = ({ task, onEdit, onDelete }) => {
     }),
   }));
 
-  const handleEdit = (title: string, label: string) => {
-    onEdit(task, title, label);
+  const toggleShowEdit = () => setShowEdit(!showEdit);
+
+  const onEdit = (title: string, label: string) => {
+    handleEdit(task, title, label);
     setShowEdit(false);
+  };
+
+  const onDelete = () => {
+    handleDelete(task.id, task.label);
   };
 
   return (
@@ -38,22 +45,25 @@ const Card: React.FC<CardProps> = ({ task, onEdit, onDelete }) => {
       <p className="text-xs text-left">
         <Moment format="YYYY/MM/DD">{task.createdAt}</Moment>
       </p>
+
       <div className="flex space-x-5 mt-4">
         <button
           className="p-2 text-xs bg-black text-blue-500 hover:text-blue-700"
-          onClick={() => setShowEdit(true)}
+          onClick={toggleShowEdit}
         >
           <Edit2 size={11} />
         </button>
+
         <button
           className="p-2 bg-black text-xs text-red-500 hover:text-red-700"
-          onClick={() => onDelete(task.id, task.label)}
+          onClick={onDelete}
         >
           <Trash2 size={11} />
         </button>
       </div>
-      <Modal isOpen={showEdit} onClose={() => setShowEdit(false)}>
-        <AddTask task={task} onSubmit={handleEdit} />
+
+      <Modal isOpen={showEdit} onClose={toggleShowEdit}>
+        <AddTask task={task} onSubmit={onEdit} />
       </Modal>
     </div>
   );

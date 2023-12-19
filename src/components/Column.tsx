@@ -5,22 +5,16 @@ import { TaskType } from "../@types";
 
 interface ColumnProps {
   label: string;
-  items: any[];
+  items: TaskType[];
   handleDelete: (id: string, label: string) => void;
   handleEdit: (task: any, title: string, label: string) => void;
 }
 
-const Column: React.FC<ColumnProps> = ({
-  label,
-  items,
-  handleDelete,
-  handleEdit,
-}) => {
+const Column = ({ label, items, handleDelete, handleEdit }: ColumnProps) => {
   const [{}, drop] = useDrop(
     () => ({
       accept: "CARD",
       drop: (x: TaskType) => {
-        console.log(x);
         handleEdit(x, x.title, label);
       },
       collect: (monitor) => ({
@@ -38,8 +32,8 @@ const Column: React.FC<ColumnProps> = ({
           <Card
             key={item.id}
             task={item}
-            onDelete={handleDelete}
-            onEdit={handleEdit}
+            handleDelete={handleDelete}
+            handleEdit={handleEdit}
           />
         ))}
       </div>
