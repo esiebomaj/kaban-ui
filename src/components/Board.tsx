@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import Column from "./Column";
+import { useQuery } from "@apollo/client";
+import { GET_TASkS } from "../graphql/queries";
 
 const Board: React.FC = () => {
   const [data, setData] = useState({
@@ -25,6 +27,18 @@ const Board: React.FC = () => {
       items: { ...data.items, [col]: [...data.items[col], item] },
     });
   };
+
+  const { loading, error, data: qData } = useQuery(GET_TASkS);
+  console.log(qData);
+
+  if (loading) return <p>Loading...</p>;
+
+  if (error)
+    return (
+      <div className="mt-5 text-red-600">
+        <p>{error.message}</p>
+      </div>
+    );
 
   return (
     <div className="flex w-screen p-5 h-5/6">
