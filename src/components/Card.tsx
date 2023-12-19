@@ -3,7 +3,6 @@ import { useDrag } from "react-dnd";
 import Moment from "react-moment";
 import { Edit2, Trash2 } from "react-feather";
 import AddTask from "./AddTask";
-import Modal from "./Modal";
 import { TaskType } from "../@types";
 
 interface CardProps {
@@ -62,9 +61,12 @@ const Card: React.FC<CardProps> = ({ task, handleDelete, handleEdit }) => {
         </button>
       </div>
 
-      <Modal isOpen={showEdit} onClose={toggleShowEdit}>
-        <AddTask task={task} onSubmit={onEdit} />
-      </Modal>
+      <AddTask
+        task={task}
+        onSubmit={onEdit}
+        onClose={toggleShowEdit}
+        isOpen={showEdit}
+      />
     </div>
   );
 };

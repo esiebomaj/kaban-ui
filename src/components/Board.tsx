@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import Column from "./Column";
-import Modal from "./Modal";
 import AddTask from "./AddTask";
 import useTasks from "../hooks/useTasks";
 
@@ -26,9 +25,11 @@ const Board: React.FC = () => {
         <button className="bg-black text-white">Add +</button>
       </div>
 
-      <Modal isOpen={showAddModal} onClose={toggleShowAddModal}>
-        <AddTask onSubmit={handleAddTask} />
-      </Modal>
+      <AddTask
+        onSubmit={handleAddTask}
+        isOpen={showAddModal}
+        onClose={toggleShowAddModal}
+      />
 
       {data.labels &&
         data.labels.map((col: string) => (
