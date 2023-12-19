@@ -1,0 +1,19 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  text-align: center;
+  height: 100vh;
+}
+
+.board-column::-webkit-scrollbar {
+  width: 2px;
+}
+
+.board-column::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.board-column::-webkit-scrollbar-thumb {
+  background-color: rgb(49, 49, 53);
+  /* outline: 1px solid slategrey; */
+}
