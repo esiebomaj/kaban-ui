@@ -1,4 +1,3 @@
-import React from "react";
 import Card from "./Card";
 import { useDrop } from "react-dnd";
 import { TaskType } from "../@types";

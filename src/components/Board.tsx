@@ -6,7 +6,7 @@ import SortMenu from "./SortMenu";
 
 const Board: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
-  const [selectedSort, setSelectedSort] = useState<string>("createdAt");
+  const [selectedSort, setSelectedSort] = useState<string>("priority");
 
   const {
     loading,

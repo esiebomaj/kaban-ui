@@ -77,35 +77,29 @@ const useTasks = (sortBy: string) => {
 
       if (resData?.editTask?.task) {
         const newTask = resData?.editTask?.task;
+
         console.log("Edited sucessfully");
-        const oldLabel = task.label;
-        console.log(oldLabel, newLabel, data);
 
-        const oldLabelTasks = data.tasks[oldLabel].filter(
-          (t) => t.id !== task.id
-        );
+        setData((prevData) => {
+          const updatedTasks = { ...prevData.tasks };
 
-        let newLabelTasks = data.tasks[newLabel].map((t) => {
-          return t.id === task.id ? newTask : t;
-        });
+          // Remove the task from the old label
+          updatedTasks[task.label] = updatedTasks[task.label].filter(
+            (t) => t.id !== task.id
+          );
 
-        if (oldLabel !== newLabel) newLabelTasks = [newTask, ...newLabelTasks];
+          // update the task in the new label
+          updatedTasks[newLabel] = updatedTasks[newLabel].map((t) => {
+            return t.id === task.id ? newTask : t;
+          });
 
-        console.log(oldLabel, data.tasks[oldLabel], oldLabelTasks);
-        console.log(newLabel, data.tasks[newLabel], newLabelTasks);
+          if (task.label !== newLabel)
+            updatedTasks[newLabel] = [newTask, ...updatedTasks[newLabel]];
 
-        setData({
-          ...data,
-          tasks: {
-            ...data.tasks,
-            [oldLabel]: oldLabelTasks,
-            [newLabel]: newLabelTasks,
-          },
-        });
-        console.log({
-          ...data.tasks,
-          [oldLabel]: oldLabelTasks,
-          [newLabel]: newLabelTasks,
+          return {
+            ...prevData,
+            tasks: updatedTasks,
+          };
         });
       } else {
         console.error("Error editing task:");
@@ -123,19 +117,19 @@ const useTasks = (sortBy: string) => {
         },
       } = await deleteTaskMutation({ variables: { boardId, taskId: id } });
 
-      // Check the result of the mutation
       if (success) {
-        // The task was deleted successfully
         console.log("Deleted success");
+
+        const updatedTasks = {
+          ...data.tasks,
+          [label]: data.tasks[label].filter((t) => t.id !== id),
+        };
+
         setData({
           ...data,
-          tasks: {
-            ...data.tasks,
-            [label]: data.tasks[label].filter((t) => t.id !== id),
-          },
+          tasks: updatedTasks,
         });
       } else {
-        // Handle the case where deletion was not successful
         console.error("couldnt delete");
       }
     } catch (error) {
@@ -152,20 +146,22 @@ const useTasks = (sortBy: string) => {
       if (resData?.reorderTask?.success) {
         console.log("Order updated sucessfully");
 
-        task = { ...task, priority };
+        const updatedTask = { ...task, priority };
 
-        const newTasks = data.tasks[task.label]
-          .map((t) => {
-            return t.id !== task.id ? t : task;
-          })
-          .sort((a, b) => b.priority - a.priority);
+        setData((prevData) => {
+          const newTasks = prevData.tasks[task.label]
+            .map((t) => {
+              return t.id !== task.id ? t : updatedTask;
+            })
+            .sort((a, b) => b.priority - a.priority);
 
-        setData({
-          ...data,
-          tasks: {
-            ...data.tasks,
-            [task.label]: newTasks,
-          },
+          return {
+            ...prevData,
+            tasks: {
+              ...prevData.tasks,
+              [task.label]: newTasks,
+            },
+          };
         });
       } else {
         console.error("Error editing task:");

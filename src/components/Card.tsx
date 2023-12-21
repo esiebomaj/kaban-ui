@@ -43,7 +43,7 @@ const Card: React.FC<CardProps> = ({
         isOver: !!monitor.isOver(),
       }),
     }),
-    []
+    [task]
   );
 
   drag(drop(dragRef));
@@ -70,7 +70,6 @@ const Card: React.FC<CardProps> = ({
       <p className="text-xs text-left">
         <Moment format="YYYY/MM/DD">{task.createdAt}</Moment>
       </p>
-
       <div className="flex space-x-5 mt-4">
         <button
           className="p-2 text-xs bg-black text-blue-500 hover:text-blue-700"
@@ -86,7 +85,6 @@ const Card: React.FC<CardProps> = ({
           <Trash2 size={11} />
         </button>
       </div>
-
       <AddTask
         task={task}
         onSubmit={onEdit}
