@@ -4,11 +4,13 @@ import {
   GET_TASkS,
   DELETE_TASK_MUTATION,
   EDIT_TASK_MUTATION,
+  REORDER_TASK_MUTATION,
 } from "../graphql/queries";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TaskType, BoardStateType, TasksByLabel } from "../@types";
 
-const useTasks = () => {
+const useTasks = (sortBy: string) => {
+  const boardId = "123";
   const [data, setData] = useState<BoardStateType>({ tasks: {}, labels: [] });
 
   const formatTasks = (data: any) => {
@@ -22,10 +24,17 @@ const useTasks = () => {
 
   const { loading, error, refetch } = useQuery(GET_TASkS, {
     onCompleted: formatTasks,
+    variables: { boardId, sortBy },
   });
+
+  useEffect(() => {
+    refetch({ sortBy });
+  }, [sortBy, boardId]);
+
   const [addTaskMutation] = useMutation(ADD_TASK_MUTATION);
   const [deleteTaskMutation] = useMutation(DELETE_TASK_MUTATION);
   const [editTaskMutation] = useMutation(EDIT_TASK_MUTATION);
+  const [reorderTaskMutation] = useMutation(REORDER_TASK_MUTATION);
 
   const handleAddTask = async (title: string, label: string) => {
     try {
@@ -33,7 +42,7 @@ const useTasks = () => {
         data: {
           createTask: { task },
         },
-      } = await addTaskMutation({ variables: { title, label } });
+      } = await addTaskMutation({ variables: { boardId, title, label } });
 
       console.log("Task added successfully:", task);
 
@@ -58,7 +67,12 @@ const useTasks = () => {
   ) => {
     try {
       const { data: resData } = await editTaskMutation({
-        variables: { taskId: task.id, title: newTitle, label: newLabel },
+        variables: {
+          boardId,
+          taskId: task.id,
+          title: newTitle,
+          label: newLabel,
+        },
       });
 
       if (resData?.editTask?.task) {
@@ -66,13 +80,19 @@ const useTasks = () => {
         console.log("Edited sucessfully");
         const oldLabel = task.label;
         console.log(oldLabel, newLabel, data);
+
         const oldLabelTasks = data.tasks[oldLabel].filter(
           (t) => t.id !== task.id
         );
-        const newLabelTasks = [
-          newTask,
-          ...data.tasks[newLabel].filter((t) => t.id !== task.id),
-        ];
+
+        let newLabelTasks = data.tasks[newLabel].map((t) => {
+          return t.id === task.id ? newTask : t;
+        });
+
+        if (oldLabel !== newLabel) newLabelTasks = [newTask, ...newLabelTasks];
+
+        console.log(oldLabel, data.tasks[oldLabel], oldLabelTasks);
+        console.log(newLabel, data.tasks[newLabel], newLabelTasks);
 
         setData({
           ...data,
@@ -81,6 +101,11 @@ const useTasks = () => {
             [oldLabel]: oldLabelTasks,
             [newLabel]: newLabelTasks,
           },
+        });
+        console.log({
+          ...data.tasks,
+          [oldLabel]: oldLabelTasks,
+          [newLabel]: newLabelTasks,
         });
       } else {
         console.error("Error editing task:");
@@ -96,9 +121,7 @@ const useTasks = () => {
         data: {
           deleteTask: { success },
         },
-      } = await deleteTaskMutation({
-        variables: { taskId: id },
-      });
+      } = await deleteTaskMutation({ variables: { boardId, taskId: id } });
 
       // Check the result of the mutation
       if (success) {
@@ -119,6 +142,39 @@ const useTasks = () => {
       console.error("Error deleting task:", error);
     }
   };
+
+  const handleReorder = async (task: TaskType, priority: number) => {
+    try {
+      const { data: resData } = await reorderTaskMutation({
+        variables: { boardId, taskId: task.id, priority },
+      });
+
+      if (resData?.reorderTask?.success) {
+        console.log("Order updated sucessfully");
+
+        task = { ...task, priority };
+
+        const newTasks = data.tasks[task.label]
+          .map((t) => {
+            return t.id !== task.id ? t : task;
+          })
+          .sort((a, b) => b.priority - a.priority);
+
+        setData({
+          ...data,
+          tasks: {
+            ...data.tasks,
+            [task.label]: newTasks,
+          },
+        });
+      } else {
+        console.error("Error editing task:");
+      }
+    } catch (error) {
+      console.error("Error editing task:", error);
+    }
+  };
+
   return {
     loading,
     error,
@@ -126,6 +182,7 @@ const useTasks = () => {
     handleAddTask,
     handleDelete,
     handleEdit,
+    handleReorder,
     data,
   };
 };

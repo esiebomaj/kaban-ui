@@ -8,14 +8,23 @@ interface ColumnProps {
   items: TaskType[];
   handleDelete: (id: string, label: string) => void;
   handleEdit: (task: any, title: string, label: string) => void;
+  handleReorder: (task: any, priority: number) => void;
+  sortBy: string;
 }
 
-const Column = ({ label, items, handleDelete, handleEdit }: ColumnProps) => {
+const Column = ({
+  label,
+  items,
+  handleDelete,
+  handleEdit,
+  handleReorder,
+  sortBy,
+}: ColumnProps) => {
   const [{}, drop] = useDrop(
     () => ({
       accept: "CARD",
       drop: (x: TaskType) => {
-        handleEdit(x, x.title, label);
+        if (x.label !== label) return handleEdit(x, x.title, label);
       },
       collect: (monitor) => ({
         isOver: !!monitor.isOver(),
@@ -34,6 +43,8 @@ const Column = ({ label, items, handleDelete, handleEdit }: ColumnProps) => {
             task={item}
             handleDelete={handleDelete}
             handleEdit={handleEdit}
+            handleReorder={handleReorder}
+            sortBy={sortBy}
           />
         ))}
       </div>

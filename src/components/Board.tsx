@@ -2,11 +2,21 @@ import React, { useState } from "react";
 import Column from "./Column";
 import AddTask from "./AddTask";
 import useTasks from "../hooks/useTasks";
+import SortMenu from "./SortMenu";
 
 const Board: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
-  const { loading, error, handleAddTask, data, handleDelete, handleEdit } =
-    useTasks();
+  const [selectedSort, setSelectedSort] = useState<string>("createdAt");
+
+  const {
+    loading,
+    error,
+    handleAddTask,
+    data,
+    handleDelete,
+    handleEdit,
+    handleReorder,
+  } = useTasks(selectedSort);
 
   const toggleShowAddModal = () => setShowAddModal(!showAddModal);
 
@@ -21,8 +31,14 @@ const Board: React.FC = () => {
 
   return (
     <div className="flex w-screen p-5 h-5/6">
-      <div onClick={toggleShowAddModal} className="absolute right-10 top-10 ">
-        <button className="bg-black text-white">Add +</button>
+      <div className="absolute right-10 top-10 flex">
+        <button onClick={toggleShowAddModal} className="bg-black text-white">
+          Add +
+        </button>
+        <SortMenu
+          selectedSort={selectedSort}
+          onSortChange={(s: string) => setSelectedSort(s)}
+        />
       </div>
 
       <AddTask
@@ -39,6 +55,8 @@ const Board: React.FC = () => {
             items={data.tasks[col]}
             handleDelete={handleDelete}
             handleEdit={handleEdit}
+            handleReorder={handleReorder}
+            sortBy={selectedSort}
           />
         ))}
     </div>

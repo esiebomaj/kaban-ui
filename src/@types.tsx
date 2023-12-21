@@ -3,6 +3,8 @@ export interface TaskType {
   title: string;
   label: string;
   createdAt: string;
+  priority: number;
+  boardId: string;
 }
 
 export interface TasksByLabel {
